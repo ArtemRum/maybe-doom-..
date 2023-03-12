@@ -1,41 +1,44 @@
-#Import modules
+#Импорт модулей
 import pygame
 import math
 
 import enemy
 
-#Set up window
+#Создание окна
 pygame.init()
 
 winWidth, winHeight = (1024, 512)
 window = pygame.display.set_mode((winWidth, winHeight))
 
-#Make player object
+#Класс игрока
 class Player:
     def __init__(self, x, y, tm, fov, view):
         self.x = x
         self.y = y
-        self.tm = tm #tilemap
-        self.fov = fov #field of view
-        self.view = view #players angle
+        self.tm = tm #клеточная карта
+        self.fov = fov #угол обзора
+        self.view = view #угол зрения игрока
         self.movements = {'w': False, 'a':False, 's':False, 'd':False}
         self.distances = []
-        self.img = pygame.image.load("texture.png").convert_alpha()
+        self.img = pygame.image.load("texture.jpg").convert_alpha()
         self.img = pygame.transform.scale(self.img, (64, 64))
     
-    def update(self): #Player movements
+    def update(self): #движение игрока
         radAngle = math.radians(self.view)
         if self.movements['w'] == True and self.tm[int(self.y+(math.sin(radAngle)*0.05))][int(self.x+(math.cos(radAngle)*0.05))] == 0:
             self.x += math.cos(radAngle)*0.05
             self.y += math.sin(radAngle)*0.05
+        if self.movements['s'] == True and self.tm[int(self.y-(math.sin(radAngle)*0.05))][int(self.x-(math.cos(radAngle)*0.05))] == 0:
+            self.x -= math.cos(radAngle)*0.05
+            self.y -= math.sin(radAngle)*0.05
         if self.movements['a'] == True:
             self.view -= 3
         if self.movements['d'] == True:
             self.view += 3
             
     def draw(self, window):
-        #---TopDown View---
-        #Map
+        #---Вид сверху вниз---
+        #Карта
         for y, row in enumerate(self.tm):
             for x, tile in enumerate(row):
                 if tile == 1:
@@ -44,9 +47,9 @@ class Player:
                 else:
                     pygame.draw.rect(window, (0,0,0), (x*64, y*64, 64, 64))
                     pygame.draw.rect(window, (255,255,255), (x*64, y*64, 64, 64), 1)
-        #player
+        #игрок
         pygame.draw.circle(window, (255,255,0), (int(self.x*64), int(self.y*64)), 8)
-        #Rays :D
+        #лучи :D
         self.distances = []
         for degree in range(int(self.view-(self.fov/2)), int(self.view+(self.fov/2))):
             radAngle = math.radians(degree)
@@ -58,13 +61,13 @@ class Player:
                 rayx += math.cos(radAngle)*0.01
                 rayy += math.sin(radAngle)*0.01
 
-            #Calculate ray distance
+            #вычилсение расстояния между лучами
             dist = math.sqrt(((rayx-self.x)*(rayx-self.x)+(rayy-self.y)*(rayy-self.y)))
-            #Draw the ray
+            #рисовка лучей
             pygame.draw.line(window, (0,255,0), (self.x*64, self.y*64), (rayx*64, rayy*64))
             
 
-            #Decide if colides horizontally or vertically (To help with drawing tiles)
+            #Определеление, горизонтально или вертикально расположены коллайдеры (Для помощи при рисовании плиток)
             rx = round(rayx - int(rayx), 5)
             ry = round(rayy - int(rayy), 5)
             h_col = False
@@ -83,15 +86,11 @@ class Player:
                 num = ry
             else:
                 num = rx
-
-            #Attempt at fixing curved walls. Works somewhat but not really
-            angle = math.radians(self.view - degree)
-            dist *= math.cos(angle)
             
             self.distances.append((dist, num))
-        #draw player view ray
+        #нарисовать луч обзора игрока
         pygame.draw.line(window, (255,0,0), (self.x*64, self.y*64), ((self.x+math.cos(math.radians(self.view)))*64, (self.y+math.sin(math.radians(self.view)))*64))
-        #---3D View---
+        #---3D вид---
         for x, line in enumerate(self.distances):
             height = 256 - round(line[0], 1)*42
             if height <= .5:
@@ -141,11 +140,11 @@ class Control:
 
 game = Control()
 tm = [
-    [1,1,1,1,1,1,1,1],
-    [1,0,1,0,0,0,0,1],
-    [1,0,1,1,0,1,0,1],
-    [1,0,0,0,0,1,0,1],
-    [1,1,1,1,0,1,0,1],
+    [1,1,1,1,1,1,1,1,1],
+    [1,0,1,0,0,0,0,0,1],
+    [1,0,1,1,0,1,0,1,0,1],
+    [1,0,0,0,0,1,0,0,0,1],
+    [1,1,1,1,0,1,0,1,1,1],
     [1,0,1,1,0,0,0,1],
     [1,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1]
