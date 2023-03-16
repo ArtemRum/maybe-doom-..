@@ -93,3 +93,6 @@ class Render:
 
     def scaling_to_map(self, coord):
         return int(coord * SETTINGS.scale_map_player)
+
+    def bullet(self):
+        pygame.draw.rect(self.sc_map, SETTINGS.WHITE)

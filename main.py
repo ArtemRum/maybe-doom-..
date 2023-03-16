@@ -33,7 +33,7 @@ if __name__ == '__main__':
     npc_3 = npc.NPC(sc, (721, 841), 'bruda_3')
     npc_4 = npc.NPC(sc, (719, 595), 'bruda_4')
 
-    player = player.Player(npc, clock, map.flat_map)
+    player = player.Player(npc, clock, map.flat_map, 1)
     ray_cast = raycast_mp.RayCast(map.map)  # , sc, render)
 
     with Pool(processes=4) as pool:
@@ -47,6 +47,8 @@ if __name__ == '__main__':
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         game = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        pygame.draw.rect(self.sc_map, SETTINGS.WHITE, (20, 20, 100, 75))
 
             player.movement()
             sc.fill(SETTINGS.BLACK)
