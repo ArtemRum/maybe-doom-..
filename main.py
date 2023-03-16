@@ -1,165 +1,85 @@
-#Импорт модулей
+from multiprocessing import Pool
 import pygame
-import math
+import tkinter as tk
+import sys
+import os
+import map
+import SETTINGS
+import player
+import raycast_mp
+import render
+import npc
 
-import enemy
 
-#Создание окна
-pygame.init()
+if __name__ == '__main__':
 
-winWidth, winHeight = (1024, 512)
-window = pygame.display.set_mode((winWidth, winHeight))
+    os.environ['SDL_VIDEO_WINDOW_POS'] = f'{(tk.Tk().winfo_screenwidth() - SETTINGS.WIDTH) // 2},' \
+                                         f'{(tk.Tk().winfo_screenheight() - SETTINGS.HEIGHT) // 4}'
+    pygame.init()
+    pygame.display.set_caption('Ray casting')
 
-#Класс игрока
-class Player:
-    def __init__(self, x, y, tm, fov, view):
-        self.x = x
-        self.y = y
-        self.tm = tm #клеточная карта
-        self.fov = fov #угол обзора
-        self.view = view #угол зрения игрока
-        self.movements = {'w': False, 'a':False, 's':False, 'd':False}
-        self.distances = []
-        self.img = pygame.image.load("texture.jpg").convert_alpha()
-        self.img = pygame.transform.scale(self.img, (64, 64))
-    
-    def update(self): #движение игрока
-        radAngle = math.radians(self.view)
-        if self.movements['w'] == True and self.tm[int(self.y+(math.sin(radAngle)*0.05))][int(self.x+(math.cos(radAngle)*0.05))] == 0:
-            self.x += math.cos(radAngle)*0.05
-            self.y += math.sin(radAngle)*0.05
-        if self.movements['s'] == True and self.tm[int(self.y-(math.sin(radAngle)*0.05))][int(self.x-(math.cos(radAngle)*0.05))] == 0:
-            self.x -= math.cos(radAngle)*0.05
-            self.y -= math.sin(radAngle)*0.05
-        if self.movements['a'] == True:
-            self.view -= 3
-        if self.movements['d'] == True:
-            self.view += 3
+    sc = pygame.display.set_mode(SETTINGS.SIZE)
+    sc_map = pygame.Surface(SETTINGS.map_size)
+
+    clock = pygame.time.Clock()
+    pygame.mouse.set_visible(False)
+
+    map = map.Map()
+    render = render.Render(sc, sc_map)
+
+    npc_0 = npc.NPC(sc, (4062, 1270), 'bruda')
+    npc_1 = npc.NPC(sc, (3936, 570), 'bruda_1')
+    npc_2 = npc.NPC(sc, (4417, 554), 'bruda_2')
+    npc_3 = npc.NPC(sc, (721, 841), 'bruda_3')
+    npc_4 = npc.NPC(sc, (719, 595), 'bruda_4')
+
+    player = player.Player(npc, clock, map.flat_map)
+    ray_cast = raycast_mp.RayCast(map.map)  # , sc, render)
+
+    with Pool(processes=4) as pool:
+
+        game = True
+        while game:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        game = False
+
+            player.movement()
+            sc.fill(SETTINGS.BLACK)
+            render.draw_background(player.angle_inf, player.real_x, player.real_y)
+
+            res_1 = pool.apply_async(ray_cast.raycasting, (player.angle, player.real_x, player.real_y, 0))
+            res_2 = pool.apply_async(ray_cast.raycasting, (player.angle, player.real_x, player.real_y, 1))
+            res_3 = pool.apply_async(ray_cast.raycasting, (player.angle, player.real_x, player.real_y, 2))
+            res_4 = pool.apply_async(ray_cast.raycasting, (player.angle, player.real_x, player.real_y, 3))
+
+            walls_1, floor_1 = res_1.get()
+            walls_2, floor_2 = res_2.get()
+            walls_3, floor_3 = res_3.get()
+            walls_4, floor_4 = res_4.get()
+
+            walls_1.update(walls_2); floor_1.update(floor_2)
+            walls_1.update(walls_3); floor_1.update(floor_3)
+            walls_1.update(walls_4); floor_1.update(floor_4)
+
+            render.draw_world(walls_1, floor_1)
+
+
+            npc_1.draw(player.angle, player.player_coords, walls_1, True)
+            npc_2.draw(player.angle, player.player_coords, walls_1, True)
+            npc_3.draw(player.angle, player.player_coords, walls_1, True)
+            npc_4.draw(player.angle, player.player_coords, walls_1, True)
+            npc_0.draw(player.angle, player.player_coords, walls_1, False)
             
-    def draw(self, window):
-        #---Вид сверху вниз---
-        #Карта
-        for y, row in enumerate(self.tm):
-            for x, tile in enumerate(row):
-                if tile == 1:
-                    pygame.draw.rect(window, (255,255,255), (x*64, y*64, 64, 64))
-                    pygame.draw.rect(window, (0,0,0), (x*64, y*64, 64, 64), 1)
-                else:
-                    pygame.draw.rect(window, (0,0,0), (x*64, y*64, 64, 64))
-                    pygame.draw.rect(window, (255,255,255), (x*64, y*64, 64, 64), 1)
-        #игрок
-        pygame.draw.circle(window, (255,255,0), (int(self.x*64), int(self.y*64)), 8)
-        #лучи :D
-        self.distances = []
-        for degree in range(int(self.view-(self.fov/2)), int(self.view+(self.fov/2))):
-            radAngle = math.radians(degree)
-            rayx = self.x
-            rayy = self.y
-            
-            stop = False
-            while self.tm[int(rayy)][int(rayx)] == 0 and stop == False:
-                rayx += math.cos(radAngle)*0.01
-                rayy += math.sin(radAngle)*0.01
+            render.draw_map(map.map_of_tiles, player.real_x, player.real_y, player.sin_a, player.cos_a)
+            render.display_fps(clock)
 
-            #вычилсение расстояния между лучами
-            dist = math.sqrt(((rayx-self.x)*(rayx-self.x)+(rayy-self.y)*(rayy-self.y)))
-            #рисовка лучей
-            pygame.draw.line(window, (0,255,0), (self.x*64, self.y*64), (rayx*64, rayy*64))
-            
-
-            #Определеление, горизонтально или вертикально расположены коллайдеры (Для помощи при рисовании плиток)
-            rx = round(rayx - int(rayx), 5)
-            ry = round(rayy - int(rayy), 5)
-            h_col = False
-            if rx > .5:
-                if ry > .5 - (rx - .5) and ry < .5 + (rx - .5):
-                    h_col = True
-                else:
-                    h_col = False
-            elif rx <= .5:
-                if ry > .5 - (.5 - rx) and ry < .5 + (.5 - rx):
-                    h_col = True
-                else:
-                    h_col = False
-            
-            if h_col == True:
-                num = ry
-            else:
-                num = rx
-            
-            self.distances.append((dist, num))
-        #нарисовать луч обзора игрока
-        pygame.draw.line(window, (255,0,0), (self.x*64, self.y*64), ((self.x+math.cos(math.radians(self.view)))*64, (self.y+math.sin(math.radians(self.view)))*64))
-        #---3D вид---
-        for x, line in enumerate(self.distances):
-            height = 256 - round(line[0], 1)*42
-            if height <= .5:
-                height = .5
-            w, h = self.img.get_width(), self.img.get_height()
-
-            img_x = int(line[1]*w)
-            if img_x > 63:
-                img_x = 63
-            elif img_x < 0:
-                img_x = 0
-            img = self.img.subsurface(img_x, 0, 1, h)
-            img = pygame.transform.scale(img, (8, int(height*2)))
-
-            window.blit(img, (512+(x*8), 256-height))
-
-        
-class Control:
-    def __init__(self):
-        self.run = True
-        self.clock = pygame.time.Clock()
-    
-    def update(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.run = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
-                    player.movements["w"] = True
-                if event.key == pygame.K_a:
-                    player.movements["a"] = True
-                if event.key == pygame.K_s:
-                    player.movements["s"] = True
-                if event.key == pygame.K_d:
-                    player.movements["d"] = True
-                if event.key == pygame.K_ESCAPE:
-                    self.run = False
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_w:
-                    player.movements["w"] = False
-                if event.key == pygame.K_a:
-                    player.movements["a"] = False
-                if event.key == pygame.K_s:
-                    player.movements["s"] = False
-                if event.key == pygame.K_d:
-                    player.movements["d"] = False
-
-game = Control()
-tm = [
-    [1,1,1,1,1,1,1,1,1],
-    [1,0,1,0,0,0,0,0,1],
-    [1,0,1,1,0,1,0,1,0,1],
-    [1,0,0,0,0,1,0,0,0,1],
-    [1,1,1,1,0,1,0,1,1,1],
-    [1,0,1,1,0,0,0,1],
-    [1,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1]
-]
-
-player = Player(3.5, 3.5, tm, 64, 0)
-
-while game.run:
-    window.fill((50,50,50))
-    player.draw(window)
-
-    pygame.display.update()
-    game.update()
-    player.update()
-
-    game.clock.tick(30)
-
-pygame.quit()
+            # pygame.display.update()
+            pygame.display.flip()
+            # clock.tick()
+    pygame.quit()
+    sys.exit()
