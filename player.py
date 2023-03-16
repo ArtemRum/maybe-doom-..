@@ -5,7 +5,8 @@ import SETTINGS
 
 class Player():
 
-    def __init__(self, npc, clock, flat_map):
+    def __init__(self, npc, clock, flat_map, hp):
+        self.hp = hp
         self.npc = npc
         self.clock = clock
         self.flat_map = flat_map
@@ -213,14 +214,14 @@ class Player():
             pygame.mouse.set_pos(SETTINGS.h_WIDTH, SETTINGS.h_HEIGHT)
 
         '''For test npc'''
-        if keys[pygame.K_z]:
+        '''if keys[pygame.K_z]:
             self.npc.angle = 1
         if keys[pygame.K_x]:
             self.npc.angle = -1
         if keys[pygame.K_c]:
             self.npc.elevation += 2
         if keys[pygame.K_v]:
-            self.npc.elevation -= 2
+            self.npc.elevation -= 2'''
 
         self.angle %= SETTINGS.double_pi
         self.player_coords = (self.real_x, self.real_y)
