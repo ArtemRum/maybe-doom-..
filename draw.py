@@ -4,7 +4,8 @@ from ray_casting import ray_casting
 from map import mini_map
 from collections import deque
 from random import  randrange
-import sys
+import sys 
+import time
 
 class Drawing:
     def __init__(self, sc, sc_map, player, clock):
@@ -23,6 +24,7 @@ class Drawing:
         # menu
         self.menu_trigger = True
         self.menu_picture = pygame.image.load('img/bg.jpg').convert()
+        self.titrs = pygame.image.load('img/t.png')
         # weapon parameters
         self.weapon_base_sprite = pygame.image.load('sprites/weapons/shotgun/base/0.png').convert_alpha()
         self.weapon_shot_animation = deque([pygame.image.load(f'sprites/weapons/shotgun/shot/{i}.png').convert_alpha()
@@ -99,14 +101,10 @@ class Drawing:
             self.sfx.rotate(-1)
 
     def win(self):
-        self.menu_trigger = True
         button_font = pygame.font.Font('font/font.ttf', 72)
         render = self.font_win.render('YOU WIN!!!', 1, (randrange(40, 120), 0, 0))
         rect = pygame.Rect(0, 0, 1000, 300)
         rect.center = HALF_WIDTH, HALF_HEIGHT
-        restart = button_font.render('RESTART', 1, pygame.Color('lightgray'))
-        button_restart = pygame.Rect(0, 0, 400, 150)
-        button_restart.center = HALF_WIDTH, HALF_HEIGHT + 200
 
         pygame.draw.rect(self.sc, BLACK, rect, 50)
         self.sc.blit(render, (rect.centerx - 430, rect.centery - 140))
@@ -115,6 +113,10 @@ class Drawing:
 
     def menu(self):
         x = 0
+        self.sc.blit(self.titrs, (0, 0))
+        pygame.display.flip()
+        time.sleep(10)
+
         button_font = pygame.font.Font('font/font.ttf', 72)
         label_font = pygame.font.Font('font/font1.otf', 400)
         start = button_font.render('START', 1, pygame.Color('lightgray'))
