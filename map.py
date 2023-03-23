@@ -1,18 +1,41 @@
-import SETTINGS
+from settings import *
+import pygame
 
-class Map():
+_ = False
+matrix_map = [
+    [1, 1, 1, 1, _, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, _, _, _, _, _, 2, _, _, _, _, _, _, _, _, _, _, 4, _, _, _, _, _, 1],
+    [1, _, 2, 2, _, _, _, _, _, 2, 2, 2, _, _, _, 3, _, _, _, _, 4, _, _, 1],
+    [1, _, _, _, _, _, _, _, _, _, _, 2, 2, _, _, _, 3, _, _, _, _, _, _, 1],
+    [1, _, 2, 2, _, _, _, _, _, _, _, _, 2, _, 4, _, _, 3, _, _, _, 4, _, 1],
+    [1, _, _, _, _, _, 4, _, _, 2, 2, _, 2, _, _, _, _, _, _, 4, _, _, _, 1],
+    [1, _, 3, _, _, _, 2, _, _, 2, _, _, 2, _, _, _, 4, _, _, _, _, 4, _, 1],
+    [1, _, _, 3, _, _, 2, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, 1],
+    [1, _, 3, _, _, _, _, _, _, _, 3, _, _, 3, 3, _, _, _, _, 3, 3, _, _, 1],
+    [1, _, 3, _, _, _, 3, 3, _, 3, _, _, _, 3, 3, _, _, _, _, 2, 3, _, _, 1],
+    [1, _, _, _, _, 3, _, 3, _, _, 3, _, _, _, _, _, _, _, _, _, _, _, _, 1],
+    [1, _, 4, _, 3, _, _, _, _, 3, _, _, 2, _, _, _, _, _, _, _, _, 2, _, 1],
+    [1, _, _, _, _, _, 4, _, _, _, _, _, 2, 2, _, _, _, _, _, _, 2, 2, _, 1],
+    [1, _, _, 4, _, _, _, _, 4, _, _, _, _, 2, 2, 2, 2, 2, 2, 2, 2, _, _, 1],
+    [1, _, _, _, _, _, _, _, _, _, 4, _, _, _, _, _, _, _, _, _, _, _, _, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+]
 
-	def __init__(self):
-		self.text_map = SETTINGS.text_map
-		self.map_of_tiles, self.map, self.flat_map = self.create_map()
-
-	def create_map(self):
-		set_of_coords_tiles = set()
-		map = {}
-		for y,row in enumerate(self.text_map):
-			for x,char in enumerate(row):
-				if char != ' ':
-					set_of_coords_tiles.add((x * SETTINGS.scale_map, y * SETTINGS.scale_map,
-									 SETTINGS.scale_map, SETTINGS.scale_map))
-					map[(x, y)] = char
-		return set_of_coords_tiles, map, set(map.keys())
+WORLD_WIDTH = len(matrix_map[0]) * TILE
+WORLD_HEIGHT = len(matrix_map) * TILE
+world_map = {}
+mini_map = set()
+collision_walls = []
+for j, row in enumerate(matrix_map):
+    for i, char in enumerate(row):
+        if char:
+            mini_map.add((i * MAP_TILE, j * MAP_TILE))
+            collision_walls.append(pygame.Rect(i * TILE, j * TILE, TILE, TILE))
+            if char == 1:
+                world_map[(i * TILE, j * TILE)] = 1
+            elif char == 2:
+                world_map[(i * TILE, j * TILE)] = 2
+            elif char == 3:
+                world_map[(i * TILE, j * TILE)] = 3
+            elif char == 4:
+                world_map[(i * TILE, j * TILE)] = 4
