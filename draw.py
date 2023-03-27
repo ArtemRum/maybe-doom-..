@@ -119,7 +119,7 @@ class Drawing:
         rect.center = HALF_WIDTH, HALF_HEIGHT
 
         pygame.draw.rect(self.sc, BLACK, rect, 50)
-        self.sc.blit(render, (rect.centerx - 430, rect.centery - 140))
+        self.sc.blit(render, (rect.centerx - 465, rect.centery - 140))
         pygame.display.flip()
         self.clock.tick(20)
 
