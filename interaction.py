@@ -55,6 +55,7 @@ class Interaction:
                                                   world_map, self.player.pos):
                             if obj.flag == 'npc':
                                 self.pain_sound.play()
+                                self.player.hp = 1000
                             obj.is_dead = True
                             obj.blocked = None
                             self.drawing.shot_animation_trigger = False
@@ -63,23 +64,26 @@ class Interaction:
                         obj.blocked = None
                     break
 
-    def npc_action(self):
+    def npc_action(self, player):
         for obj in self.sprites.list_of_objects:
             if obj.flag == 'npc' and not obj.is_dead:
                 if ray_casting_npc_player(obj.x, obj.y,
                                           self.sprites.blocked_doors,
                                           world_map, self.player.pos):
                     obj.npc_action_trigger = True
-                    self.npc_move(obj)
+                    self.npc_move(obj, player)
                 else:
                     obj.npc_action_trigger = False
 
-    def npc_move(self, obj):
+    def npc_move(self, obj, player):
         if obj.distance_to_sprite > TILE:
             dx = obj.x - self.player.pos[0]
             dy = obj.y - self.player.pos[1]
             obj.x = obj.x + 1 if dx < 0 else obj.x - 1
             obj.y = obj.y + 1 if dy < 0 else obj.y - 1
+            player.hp -= 2
+            if player.check_lose():
+                self.drawing.lose()
 
     def clear_world(self):
         deleted_objects = self.sprites.list_of_objects[:]

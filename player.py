@@ -5,6 +5,7 @@ from map import collision_walls
 
 class Player:
     def __init__(self, sprites):
+        self.hp = 1000
         self.x, self.y = player_pos
         self.sprites = sprites
         self.angle = player_angle
@@ -98,3 +99,9 @@ class Player:
             difference = pygame.mouse.get_pos()[0] - HALF_WIDTH
             pygame.mouse.set_pos((HALF_WIDTH, HALF_HEIGHT))
             self.angle += difference * self.sensitivity
+
+    def check_lose(self):
+        if self.hp <= 0:
+            return True 
+        else:
+            return False

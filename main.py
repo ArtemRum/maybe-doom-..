@@ -29,7 +29,7 @@ while True:
     drawing.player_weapon([wall_shot, sprites.sprite_shot])
 
     interaction.interaction_objects()
-    interaction.npc_action()
+    interaction.npc_action(player)
     interaction.clear_world()
     interaction.check_win()
 
