@@ -1,10 +1,13 @@
 import pygame
 from settings import *
 from map import world_map, WORLD_WIDTH, WORLD_HEIGHT
+from numba import njit
 
+@njit(fastmath=True, cache=True)
 def mapping(a, b):
     return int(a // TILE) * TILE, int(b // TILE) * TILE
 
+@njit(fastmath=True, cache=True)
 def ray_casting(ox, oy, player_angle, world_map):
     casted_walls = []
     texture_v, texture_h = 1, 1

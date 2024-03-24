@@ -3,24 +3,42 @@ from sprite_objects import *
 from ray_casting import ray_casting_walls
 from draw import Drawing
 from interaction import Interaction
+from map import objects
 
 pygame.init()
 sc = pygame.display.set_mode((WIDTH, HEIGHT))
 sc_map = pygame.Surface(MINIMAP_RES)
 
+
 sprites = Sprites()
+
+for o in objects:
+    sprites.add_objects(o[0], o[1])
+
 clock = pygame.time.Clock()
 player = Player(sprites)
 drawing = Drawing(sc, sc_map, player, clock)
 interaction = Interaction(player, sprites, drawing)
 
+drawing.head()
 drawing.menu()
 pygame.mouse.set_visible(False)
 interaction.play_music()
 
-while True:
 
-    player.movement()
+
+while True:
+    
+    if interaction.check_win():
+        sprites = Sprites()
+        for o in objects:
+            sprites.add_objects(o[0], o[1])
+        clock = pygame.time.Clock()
+        player = Player(sprites)
+        drawing = Drawing(sc, sc_map, player, clock)
+        interaction = Interaction(player, sprites, drawing)
+        
+    player.movement(drawing)
     drawing.background(player.angle)
     walls, wall_shot = ray_casting_walls(player, drawing.textures)
     drawing.world(walls + [obj.object_locate(player) for obj in sprites.list_of_objects])
@@ -31,7 +49,7 @@ while True:
     interaction.interaction_objects()
     interaction.npc_action(player)
     interaction.clear_world()
-    interaction.check_win()
+    
 
     pygame.display.flip()
     clock.tick()

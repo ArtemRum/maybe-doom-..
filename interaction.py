@@ -97,12 +97,7 @@ class Interaction:
 
 
     def check_win(self):
-        if not len([obj for obj in self.sprites.list_of_objects if obj.flag == 'npc' and not obj.is_dead]):
-            pygame.mixer.music.stop()
-            pygame.mixer.music.load('sound/music/win.mp3')
-            pygame.mixer.music.play(-1)
-            while True:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        exit()
-                self.drawing.win()
+        return not len([obj for obj in self.sprites.list_of_objects if obj.flag == 'npc' and not obj.is_dead])
+        #pygame.mixer.music.stop()
+        #pygame.mixer.music.load('sound/music/win.mp3')
+        #pygame.mixer.music.play(1)

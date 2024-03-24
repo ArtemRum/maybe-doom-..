@@ -52,18 +52,21 @@ class Player:
         self.x += dx
         self.y += dy
 
-    def movement(self):
-        self.keys_control()
+    def movement(self, drawing):
+        self.keys_control(drawing)
         self.mouse_control()
         self.rect.center = self.x, self.y
         self.angle %= DOUBLE_PI
 
-    def keys_control(self):
+    def keys_control(self, drawing):
         sin_a = math.sin(self.angle)
         cos_a = math.cos(self.angle)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
-            exit()
+            drawing.menu_trigger = True
+            pygame.mouse.set_visible(True)
+            drawing.menu()
+            pygame.mouse.set_visible(False)
 
         if keys[pygame.K_w]:
             dx = player_speed * cos_a

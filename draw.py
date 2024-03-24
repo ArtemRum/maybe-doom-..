@@ -122,12 +122,15 @@ class Drawing:
         self.sc.blit(render, (rect.centerx - 465, rect.centery - 140))
         pygame.display.flip()
         self.clock.tick(20)
+        
+
+    def head(self):
+        self.sc.blit(self.titrs, (0, 0))
+        pygame.display.flip()
+        time.sleep(5)
 
     def menu(self):
         x = 0
-        self.sc.blit(self.titrs, (0, 0))
-        pygame.display.flip()
-        time.sleep(10)
 
         button_font = pygame.font.Font('font/font.ttf', 72)
         label_font = pygame.font.Font('font/font1.otf', 400)
@@ -153,10 +156,10 @@ class Drawing:
             x += 1
 
             pygame.draw.rect(self.sc, BLACK, button_start, 25)
-            self.sc.blit(start, (button_start.centerx - 130, button_start.centery - 70))
+            self.sc.blit(start, (button_start.centerx - 120, button_start.centery - 45))
 
             pygame.draw.rect(self.sc, BLACK, button_exit, 25)
-            self.sc.blit(exit, (button_exit.centerx - 85, button_exit.centery - 70))
+            self.sc.blit(exit, (button_exit.centerx - 85, button_exit.centery - 45))
 
             color = randrange(40)
             label = label_font.render('Дум', 1, (color, color, color))
@@ -166,14 +169,14 @@ class Drawing:
             mouse_click = pygame.mouse.get_pressed()
             if button_start.collidepoint(mouse_pos):
                 pygame.draw.rect(self.sc, BLACK, button_start, 25)
-                self.sc.blit(start, (button_start.centerx - 130, button_start.centery - 70))
+                self.sc.blit(start, (button_start.centerx - 125, button_start.centery - 50))
                 if mouse_click[0]:
                     pygame.mixer.music.stop()
                     self.menu_trigger = False
 
             elif button_exit.collidepoint(mouse_pos):
                 pygame.draw.rect(self.sc, BLACK, button_exit, 25)
-                self.sc.blit(exit, (button_exit.centerx - 85, button_exit.centery - 70))
+                self.sc.blit(exit, (button_exit.centerx - 80, button_exit.centery - 40))
                 if mouse_click[0]:
                     pygame.quit()
                     sys.exit()
