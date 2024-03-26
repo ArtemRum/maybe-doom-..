@@ -1,7 +1,6 @@
 import pygame
 from settings import *
 from ray_casting import ray_casting
-from map import mini_map
 from collections import deque
 from random import  randrange
 import sys 
@@ -23,6 +22,7 @@ class Drawing:
                          }
         # menu
         self.menu_trigger = True
+        self.win_trigger = False
         self.menu_picture = pygame.image.load('img/bg.jpg').convert()
         self.titrs = pygame.image.load('img/t.png')
         # weapon parameters
@@ -60,7 +60,7 @@ class Drawing:
         render = self.font.render(display_fps, 0, DARKORANGE)
         self.sc.blit(render, FPS_POS)
 
-    def mini_map(self, player):
+    def mini_map(self, player, mini_map):
         self.sc_map.fill(BLACK)
         map_x, map_y = player.x // MAP_SCALE, player.y // MAP_SCALE
         pygame.draw.line(self.sc_map, YELLOW, (map_x, map_y), (map_x + 12 * math.cos(player.angle),
@@ -101,16 +101,41 @@ class Drawing:
             self.sfx.rotate(-1)
 
     def win(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load('sound/music/win.mp3')
+        pygame.mixer.music.play(1)
+        
         pygame.mouse.set_visible(True)
         button_font = pygame.font.Font('font/font.ttf', 72)
         render = self.font_win.render('YOU WIN!!!', 1, (randrange(40, 120), 0, 0))
         rect = pygame.Rect(0, 0, 1000, 300)
         rect.center = HALF_WIDTH, HALF_HEIGHT
+        restart = button_font.render('RESTART', 1, pygame.Color('lightgray'))
+        button_restart = pygame.Rect(0, 0, 400, 150)
+        button_restart.center = HALF_WIDTH, HALF_HEIGHT + 200
 
-        pygame.draw.rect(self.sc, BLACK, rect, 50)
-        self.sc.blit(render, (rect.centerx - 430, rect.centery - 140))
-        pygame.display.flip()
-        self.clock.tick(20)
+        while self.win_trigger:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                    
+            pygame.draw.rect(self.sc, BLACK, rect, 50)
+            self.sc.blit(render, (rect.centerx - 430, rect.centery - 140))
+            
+            pygame.draw.rect(self.sc, BLACK, button_restart, 25)
+            self.sc.blit(restart, (button_restart.centerx - 85, button_restart.centery - 45))
+            
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_click = pygame.mouse.get_pressed()
+            if button_restart.collidepoint(mouse_pos):
+                pygame.draw.rect(self.sc, BLACK, button_restart, 25)
+                self.sc.blit(restart, (button_restart.centerx - 80, button_restart.centery - 40))
+                if mouse_click[0]:
+                    pygame.mixer.music.stop()
+                    self.win_trigger = False
+            pygame.display.flip()
+            self.clock.tick(20)
 
     def lose(self):
         button_font = pygame.font.Font('font/font.ttf', 72)

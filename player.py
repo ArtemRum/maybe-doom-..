@@ -1,10 +1,9 @@
 from settings import *
 import pygame
 import math
-from map import collision_walls
 
 class Player:
-    def __init__(self, sprites):
+    def __init__(self, sprites, collision_walls):
         self.hp = 1000
         self.x, self.y = player_pos
         self.sprites = sprites
@@ -13,6 +12,7 @@ class Player:
         # collision parameters
         self.side = 50
         self.rect = pygame.Rect(*player_pos, self.side, self.side)
+        self.collision_walls = collision_walls
         # weapon
         self.shot = False
 
@@ -22,7 +22,7 @@ class Player:
 
     @property
     def collision_list(self):
-        return collision_walls + [pygame.Rect(*obj.pos, obj.side, obj.side) for obj in
+        return self.collision_walls + [pygame.Rect(*obj.pos, obj.side, obj.side) for obj in
                                   self.sprites.list_of_objects if obj.blocked]
 
     def detect_collision(self, dx, dy):

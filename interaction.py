@@ -1,5 +1,4 @@
 from settings import *
-from map import world_map
 from ray_casting import mapping
 import math
 import pygame
@@ -45,7 +44,7 @@ class Interaction:
         self.drawing = drawing
         self.pain_sound = pygame.mixer.Sound('sound/pain.wav')
 
-    def interaction_objects(self):
+    def interaction_objects(self, world_map):
         if self.player.shot and self.drawing.shot_animation_trigger:
             for obj in sorted(self.sprites.list_of_objects, key=lambda obj: obj.distance_to_sprite):
                 if obj.is_on_fire[1]:
@@ -64,7 +63,7 @@ class Interaction:
                         obj.blocked = None
                     break
 
-    def npc_action(self, player):
+    def npc_action(self, player, world_map):
         for obj in self.sprites.list_of_objects:
             if obj.flag == 'npc' and not obj.is_dead:
                 if ray_casting_npc_player(obj.x, obj.y,
@@ -98,6 +97,3 @@ class Interaction:
 
     def check_win(self):
         return not len([obj for obj in self.sprites.list_of_objects if obj.flag == 'npc' and not obj.is_dead])
-        #pygame.mixer.music.stop()
-        #pygame.mixer.music.load('sound/music/win.mp3')
-        #pygame.mixer.music.play(1)
