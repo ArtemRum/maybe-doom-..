@@ -1,6 +1,8 @@
+import random 
 import pygame as pg
-
+from settings import PLAYER_POS
 _ = False
+map_objects=[_,1,2,3,4,5]
 mini_map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, _, _, _, _, _, _, _, _, _, _, _, _, _, _, 1],
@@ -40,7 +42,7 @@ mini_map = [
 class Map:
     def __init__(self, game):
         self.game = game
-        self.mini_map = mini_map
+        self.mini_map = self.map_generation()
         self.world_map = {}
         self.rows = len(self.mini_map)
         self.cols = len(self.mini_map[0])
@@ -55,3 +57,11 @@ class Map:
     def draw(self):
         [pg.draw.rect(self.game.screen, 'darkgray', (pos[0] * 100, pos[1] * 100, 100, 100), 2)
          for pos in self.world_map]
+    def map_generation(self):
+        lst=[[1]*12] + [[1]+[random.choice(map_objects) for i in range(10)]+[1] for j in range(30)] + [[1]*12]
+        #lst[int(PLAYER_POS[0]-0.5)][PLAYER_POS[1]] = _
+        return lst
+        # for i in lst[1:-1]:
+        #     for j in i:
+        #         if not j:
+                    
