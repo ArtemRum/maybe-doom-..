@@ -58,8 +58,8 @@ class Map:
         [pg.draw.rect(self.game.screen, 'darkgray', (pos[0] * 100, pos[1] * 100, 100, 100), 2)
          for pos in self.world_map]
     def map_generation(self):
-        lst=[[1]*12] + [[1]+[random.choice(map_objects) for i in range(10)]+[1] for j in range(30)] + [[1]*12]
-        #lst[int(PLAYER_POS[0]-0.5)][PLAYER_POS[1]] = _
+        lst=[[1]*12] + [[1]+[choice(map_objects) for i in range(10)]+[1] for j in range(30)] + [[1]*12]
+        lst[PLAYER_POS[1]][int(PLAYER_POS[0]-0.5)] = _
         return lst
         # for i in lst[1:-1]:
         #     for j in i:
