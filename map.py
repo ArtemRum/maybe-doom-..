@@ -1,8 +1,8 @@
 import random 
 import pygame as pg
-from settings import PLAYER_POS
+from settings import *
 _ = False
-map_objects=[2,3,4,5]
+
 mini_map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, _, _, _, _, _, _, _, _, _, _, _, _, _, _, 1],
@@ -42,7 +42,8 @@ mini_map = [
 class Map:
     def __init__(self, game):
         self.game = game
-        self.mini_map = mini_map #self.map_generation()
+        self.sc_map = game.sc_map
+        self.mini_map = self.generate_maze(32,13)
         self.world_map = {}
         self.rows = len(self.mini_map)
         self.cols = len(self.mini_map[0])
@@ -58,25 +59,39 @@ class Map:
         [pg.draw.rect(self.game.screen, 'darkgray', (pos[0] * 100, pos[1] * 100, 100, 100), 2)
          for pos in self.world_map]
         
+    def mini_map(self, player):
+        self.sc_map.fill(BLACK)
+        map_x, map_y = player.x // MAP_SCALE, player.y // MAP_SCALE
+        pg.draw.circle(self.sc_map, RED, (int(map_x), int(map_y)), 5)
+        for y in range(len(self.mini_map)):
+            for x in range(len(self.mini_map[y])):
+                pg.draw.rect(self.sc_map, DARKBROWN, (x, y, MAP_TILE, MAP_TILE))
+        self.sc.blit(self.sc_map, MAP_POS)
+        
     def generate_maze(self, width, height):
         # Создаем пустую карту
         maze = [[0 for _ in range(width)] for _ in range(height)]
         
-        # Устанавливаем внешние стены
+        
+        # Генерируем полностью связанный граф клеток
+        self.divide(maze, 1, 1, width-2, height-2)
+        
+        # Удаляем лишние стены, чтобы соответствовать условию не более двух единиц вокруг нуля
+        for i in range(height-1):
+            for j in range(width-1):
+                if maze[i][j] == 0:
+                    if self.count_surrounding_walls(maze, i, j) > 2:
+                        self.remove_excess_walls(maze, i, j)
+        
         for i in range(width):
             maze[0][i] = 1
             maze[height-1][i] = 1
         for i in range(height):
             maze[i][0] = 1
             maze[i][width-1] = 1
-            
-        # Генерация лабиринта с использованием алгоритма "Рекурсивное разбиение"
-        self.divide(maze, 1, 1, width-2, height-2)
-        
         # Установка стартовой и конечной точек
         maze[1][0] = 2
         maze[height-2][width-1] = 3
-        
         return maze
 
     def divide(self, maze, x, y, width, height):
@@ -94,19 +109,56 @@ class Map:
                 self.split_vertically(maze, x, y, width, height)
 
     def split_horizontally(self, maze, x, y, width, height):
-        divide_point = random.randint(2, height-2)
+        try:
+            divide_point = random.randint(2, height-2)
+        except ValueError:
+            divide_point = 2
         passage = random.randint(x + 1, x + width - 1)
         for i in range(x, x + width + 1):
             maze[y + divide_point][i] = 1
         maze[y + divide_point][passage] = 0  # Соединяем клетки
+        # Гарантируем связность
+        adjacent_passage = random.randint(y, y + divide_point - 1)
+        maze[adjacent_passage][passage] = 0
+        adjacent_passage = random.randint(y + divide_point + 1, y + height)
+        maze[adjacent_passage][passage] = 0
         self.divide(maze, x, y, width, divide_point - 1)
         self.divide(maze, x, y + divide_point + 1, width, height - divide_point - 1)
 
     def split_vertically(self, maze, x, y, width, height):
-        divide_point = random.randint(2, width-2)
+        try:
+            divide_point = random.randint(2, width-2)
+        except ValueError:
+            divide_point = 2
         passage = random.randint(y + 1, y + height - 1)
         for i in range(y, y + height + 1):
             maze[i][x + divide_point] = 1
         maze[passage][x + divide_point] = 0  # Соединяем клетки
+        # Гарантируем связность
+        adjacent_passage = random.randint(x, x + divide_point - 1)
+        maze[passage][adjacent_passage] = 0
+        adjacent_passage = random.randint(x + divide_point + 1, x + width)
+        maze[passage][adjacent_passage] = 0
         self.divide(maze, x, y, divide_point - 1, height)
         self.divide(maze, x + divide_point + 1, y, width - divide_point - 1, height)
+
+    def count_surrounding_walls(self, maze, x, y):
+        count = 0
+        if maze[x+1][y] == 1:
+            count += 1
+        if maze[x-1][y] == 1:
+            count += 1
+        if maze[x][y+1] == 1:
+            count += 1
+        if maze[x][y-1] == 1:
+            count += 1
+        return count
+
+    def remove_excess_walls(self, maze, x, y):
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        random.shuffle(directions)
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < len(maze)-1 and 0 <= ny < len(maze[0])-1 and maze[nx][ny] == 1:
+                maze[nx][ny] = 0
+                break
