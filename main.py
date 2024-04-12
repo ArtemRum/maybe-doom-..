@@ -17,6 +17,7 @@ class Game:
         pg.init()
         pg.mouse.set_visible(False)
         self.screen = pg.display.set_mode(RES)
+        self.sc_map = pg.Surface(MINIMAP_RES)
         pg.event.set_grab(True)
         self.clock = pg.time.Clock()
         self.delta_time = 1
@@ -47,6 +48,7 @@ class Game:
     def draw(self):
         self.object_renderer.draw()
         self.weapon.draw()
+        # self.map.mini_map(self.player)
 
     def check_events(self):
         self.global_trigger = False
