@@ -48,7 +48,7 @@ class Game:
     def draw(self):
         self.object_renderer.draw()
         self.weapon.draw()
-        # self.map.mini_map(self.player)
+        self.map.m_map()
 
     def check_events(self):
         self.global_trigger = False
@@ -68,6 +68,9 @@ class Game:
             if self.object_renderer.menu_trigger:
                 self.object_renderer.menu()
             self.update()
+            if self.object_handler.check_win():
+                self.object_renderer.win()
+                self.new_game()
             self.draw()
 
 
