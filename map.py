@@ -1,6 +1,9 @@
 import random 
 import pygame as pg
+from random import choice
+from settings import PLAYER_POS
 from settings import *
+
 _ = False
 
 mini_map = [
@@ -58,15 +61,14 @@ class Map:
     def draw(self):
         [pg.draw.rect(self.game.screen, 'darkgray', (pos[0] * 100, pos[1] * 100, 100, 100), 2)
          for pos in self.world_map]
-        
-    def mini_map(self, player):
+
+    def m_map(self):
         self.sc_map.fill(BLACK)
-        map_x, map_y = player.x // MAP_SCALE, player.y // MAP_SCALE
+        map_x, map_y = self.game.player.x*10, self.game.player.y*10
         pg.draw.circle(self.sc_map, RED, (int(map_x), int(map_y)), 5)
-        for y in range(len(self.mini_map)):
-            for x in range(len(self.mini_map[y])):
-                pg.draw.rect(self.sc_map, DARKBROWN, (x, y, MAP_TILE, MAP_TILE))
-        self.sc.blit(self.sc_map, MAP_POS)
+        for x, y in self.world_map:
+            pg.draw.rect(self.sc_map, DARKBROWN, (x*10, y*10, MAP_TILE, MAP_TILE))
+        self.game.screen.blit(self.sc_map, MAP_POS)
         
     def generate_maze(self, width, height):
         # Создаем пустую карту
