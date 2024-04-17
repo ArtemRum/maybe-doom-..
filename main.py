@@ -14,6 +14,7 @@ from pathfinding import *
 
 class Game:
     def __init__(self):
+        self.lvl = 1
         pg.init()
         pg.mouse.set_visible(False)
         self.screen = pg.display.set_mode(RES)
@@ -69,6 +70,7 @@ class Game:
                 self.object_renderer.menu()
             self.update()
             if self.object_handler.check_win():
+                self.lvl += 1
                 self.object_renderer.win()
                 self.new_game()
             self.draw()
