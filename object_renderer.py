@@ -90,7 +90,7 @@ class ObjectRenderer:
     def win(self):
         self.music.win()
         pg.mouse.set_visible(True)
-        button_font = pg.font.Font('font/font.ttf', 72)
+        button_font = pg.font.Font('resources/font/font.ttf', 72)
         rect = pg.Rect(0, 0, 1000, 300)
         rect.center = HALF_WIDTH, HALF_HEIGHT
         restart = button_font.render('RESTART', 1, pg.Color('lightgray'))
