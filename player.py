@@ -30,7 +30,6 @@ class Player:
         if self.health < 1:
             self.game.object_renderer.game_over()
             pg.display.flip()
-            pg.time.delay(1500)
             self.game.new_game()
 
     def get_damage(self, damage):
