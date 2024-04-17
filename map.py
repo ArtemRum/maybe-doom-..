@@ -1,7 +1,6 @@
 import random 
 import pygame as pg
 from random import choice
-from settings import PLAYER_POS
 from settings import *
 
 _ = False
@@ -46,7 +45,7 @@ class Map:
     def __init__(self, game):
         self.game = game
         self.sc_map = game.sc_map
-        self.mini_map = self.generate_maze(32,13)
+        self.mini_map = self.generate_maze(random.randint(13,32),random.randint(13,32))
         self.world_map = {}
         self.rows = len(self.mini_map)
         self.cols = len(self.mini_map[0])
@@ -94,6 +93,13 @@ class Map:
         # Установка стартовой и конечной точек
         maze[1][0] = 2
         maze[height-2][width-1] = 3
+
+        for i in maze:
+            for j in i:
+                if j == 0:
+                    j = '_'
+                print(j, end=' ')
+            print()
         return maze
 
     def divide(self, maze, x, y, width, height):
@@ -117,7 +123,7 @@ class Map:
             divide_point = 2
         passage = random.randint(x + 1, x + width - 1)
         for i in range(x, x + width + 1):
-            maze[y + divide_point][i] = 1
+            maze[y + divide_point][i] = random.randint(1,5)
         maze[y + divide_point][passage] = 0  # Соединяем клетки
         # Гарантируем связность
         adjacent_passage = random.randint(y, y + divide_point - 1)
@@ -134,7 +140,7 @@ class Map:
             divide_point = 2
         passage = random.randint(y + 1, y + height - 1)
         for i in range(y, y + height + 1):
-            maze[i][x + divide_point] = 1
+            maze[i][x + divide_point] = random.randint(1,5)
         maze[passage][x + divide_point] = 0  # Соединяем клетки
         # Гарантируем связность
         adjacent_passage = random.randint(x, x + divide_point - 1)
@@ -146,21 +152,19 @@ class Map:
 
     def count_surrounding_walls(self, maze, x, y):
         count = 0
-        if maze[x+1][y] == 1:
+        if maze[x+1][y] in [1, 2, 3, 4, 5]:
             count += 1
-        if maze[x-1][y] == 1:
+        if maze[x-1][y] in [1, 2, 3, 4, 5]:
             count += 1
-        if maze[x][y+1] == 1:
+        if maze[x][y+1] in [1, 2, 3, 4, 5]:
             count += 1
-        if maze[x][y-1] == 1:
+        if maze[x][y-1] in [1, 2, 3, 4, 5]:
             count += 1
         return count
 
     def remove_excess_walls(self, maze, x, y):
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        random.shuffle(directions)
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < len(maze)-1 and 0 <= ny < len(maze[0])-1 and maze[nx][ny] == 1:
+            if 0 <= nx <= len(maze) and 0 <= ny <= len(maze[0]):
                 maze[nx][ny] = 0
-                break
