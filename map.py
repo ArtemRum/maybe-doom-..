@@ -42,10 +42,10 @@ mini_map = [
 
 
 class Map:
-    def __init__(self, game):
+    def __init__(self, game, map_size):
         self.game = game
         self.sc_map = game.sc_map
-        self.mini_map = self.generate_maze(random.randint(13,32),random.randint(13,32))
+        self.mini_map = self.generate_maze(random.randint(map_size[0],map_size[1]),random.randint(map_size[0],map_size[1]))
         self.world_map = {}
         self.rows = len(self.mini_map)
         self.cols = len(self.mini_map[0])
@@ -64,9 +64,9 @@ class Map:
     def m_map(self):
         self.sc_map.fill(BLACK)
         map_x, map_y = self.game.player.x*10, self.game.player.y*10
-        pg.draw.circle(self.sc_map, RED, (int(map_x), int(map_y)), 5)
+        pg.draw.circle(self.sc_map, RED, (HALF_WIDTH//5, HALF_HEIGHT//5), 5)
         for x, y in self.world_map:
-            pg.draw.rect(self.sc_map, DARKBROWN, (x*10, y*10, MAP_TILE, MAP_TILE))
+            pg.draw.rect(self.sc_map, DARKBROWN, (HALF_WIDTH//5-map_x+x*10, HALF_HEIGHT//5-map_y+y*10, MAP_TILE, MAP_TILE))
         self.game.screen.blit(self.sc_map, MAP_POS)
         
     def generate_maze(self, width, height):
@@ -93,6 +93,7 @@ class Map:
         # Установка стартовой и конечной точек
         maze[1][0] = 2
         maze[height-2][width-1] = 3
+        maze[height-2][width-2] = 0
 
         for i in maze:
             for j in i:
