@@ -16,7 +16,7 @@ class ObjectHandler:
         self.npc_positions = {}
 
         # spawn npc
-        self.enemies = self.game.lvl  # npc count
+        self.enemies = self.game.lvl**2  # npc count
         self.npc_types = [SoldierNPC, CacoDemonNPC, CyberDemonNPC]
         self.weights = [70, 20, 10]
         self.restricted_area = {(i, j) for i in range(10) for j in range(10)}
@@ -71,7 +71,7 @@ class ObjectHandler:
                 self.add_npc(npc(self.game, pos=(x + 0.5, y + 0.5)))
 
     def check_win(self):
-        return not len(self.npc_positions)
+        return len(self.game.map.mini_map)-int(self.game.player.y) == 2 and len(self.game.map.mini_map[0])-int(self.game.player.x) == 2
 
     def update(self):
         self.npc_positions = {npc.map_pos for npc in self.npc_list if npc.alive}
