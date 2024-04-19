@@ -32,6 +32,7 @@ class ObjectRenderer:
         self.draw_background()
         self.render_game_objects()
         self.draw_player_health()
+        self.print_level()
         
     def menu(self):
         pg.mouse.set_visible(True)
@@ -40,7 +41,7 @@ class ObjectRenderer:
         x = 0
 
         button_font = pg.font.Font('resources/font/font.ttf', 72)
-        label_font = pg.font.Font('resources/font/font1.otf', 400)
+        label_font = pg.font.Font('resources/font/font1.otf', 200)
         start = button_font.render('START', 1, pg.Color('lightgray'))
         button_start = pg.Rect(0, 0, 400, 150)
         button_start.center = HALF_WIDTH, HALF_HEIGHT
@@ -64,7 +65,7 @@ class ObjectRenderer:
             self.screen.blit(exit, (button_exit.centerx - 85, button_exit.centery - 45))
 
             color = randrange(40)
-            label = label_font.render('doom', 1, (color, color, color))
+            label = label_font.render('rogalic shooter', 1, (color, color, color))
             self.screen.blit(label, (15, -30))
 
             mouse_pos = pg.mouse.get_pos()
@@ -161,6 +162,12 @@ class ObjectRenderer:
         for i, char in enumerate(health):
             self.screen.blit(self.digits[char], (i * self.digit_size, 0))
         self.screen.blit(self.digits['10'], ((i + 1) * self.digit_size, 0))
+    
+    def print_level(self):
+        import random
+        button_font = pg.font.Font('resources/font/font.ttf', 72)
+        lvl_txt = button_font.render(f'LEVEL {self.game.lvl}', 1,(random.randint(0,150), 0, 0))
+        self.screen.blit(lvl_txt, (0, self.digit_size))
 
     def player_damage(self):
         self.screen.blit(self.blood_screen, (0, 0))
