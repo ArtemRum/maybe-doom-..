@@ -28,8 +28,9 @@ class Game:
         self.new_game()
 
     def new_game(self):
+        map_size_lst=[10+5*(self.lvl-1),20+5*(self.lvl-1)]
         self.sound = Sound(self)
-        self.map = Map(self)
+        self.map = Map(self, map_size_lst)
         self.player = Player(self)
         self.object_renderer = ObjectRenderer(self)
         self.raycasting = RayCasting(self)
