@@ -92,7 +92,7 @@ class Map:
             maze[i][width-1] = 1
         # Установка стартовой и конечной точек
         maze[1][0] = 2
-        maze[height-2][width-1] = 3
+        maze[height-2][width-1] = 6
         maze[height-2][width-2] = 0
 
         for i in maze:

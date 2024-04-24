@@ -63,17 +63,21 @@ class Game:
             elif event.type == self.global_event:
                 self.global_trigger = True
             self.player.single_fire_event(event)
+            if self.player.shot and self.object_handler.check_win():
+                self.object_renderer.win_trigger = True 
 
     def run(self):
-        while True:
+        while game:
             self.check_events()
             if self.object_renderer.menu_trigger:
                 self.object_renderer.menu()
             self.update()
-            if self.object_handler.check_win():
+            if self.object_handler.check_win() and self.object_renderer.win_trigger:
                 self.lvl += 1
-                self.object_renderer.win()
                 self.new_game()
+                self.object_renderer.menu_trigger = False
+                self.object_renderer.win_trigger = True
+                self.object_renderer.win()
             self.draw()
 
 

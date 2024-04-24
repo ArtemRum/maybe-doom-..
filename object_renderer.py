@@ -2,7 +2,6 @@ import pygame as pg
 from settings import *
 from random import  randrange
 import sys 
-import time
 
 
 class ObjectRenderer:
@@ -94,7 +93,7 @@ class ObjectRenderer:
         button_font = pg.font.Font('resources/font/font.ttf', 72)
         rect = pg.Rect(0, 0, 1000, 300)
         rect.center = HALF_WIDTH, HALF_HEIGHT
-        restart = button_font.render('RESTART', 1, pg.Color('lightgray'))
+        restart = button_font.render('CONTINUE', 1, pg.Color('lightgray'))
         button_restart = pg.Rect(0, 0, 400, 150)
         button_restart.center = HALF_WIDTH, HALF_HEIGHT + 200
         
@@ -115,11 +114,10 @@ class ObjectRenderer:
             
             mouse_pos = pg.mouse.get_pos()
             mouse_click = pg.mouse.get_pressed()
-            if button_restart.collidepoint(mouse_pos):
-                if mouse_click[0]:
-                    self.music.theme()
-                    self.win_trigger = False
-                    pg.mouse.set_visible(False)
+            if button_restart.collidepoint(mouse_pos) and mouse_click[0]:
+                self.music.theme()
+                self.win_trigger = False
+                pg.mouse.set_visible(False)
             pg.display.flip()
             self.clock.tick(20)
 
@@ -196,4 +194,5 @@ class ObjectRenderer:
             3: self.get_texture('resources/textures/3.png'),
             4: self.get_texture('resources/textures/4.png'),
             5: self.get_texture('resources/textures/5.png'),
+            6: self.get_texture('resources/img/bigdoor2_1.jpg'),
         }
